@@ -1,4 +1,55 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Display Hijri Date
+    function displayHijriDate() {
+        const hijriDate = document.getElementById('hijriDate');
+        if (hijriDate) {
+            try {
+                const today = new Date();
+
+                // Get ordinal suffix for day
+                function getOrdinalSuffix(day) {
+                    const j = day % 10;
+                    const k = day % 100;
+                    if (j === 1 && k !== 11) return day + 'st';
+                    if (j === 2 && k !== 12) return day + 'nd';
+                    if (j === 3 && k !== 13) return day + 'rd';
+                    return day + 'th';
+                }
+
+                // Using Intl API to get Hijri date
+                const hijriFormatter = new Intl.DateTimeFormat('en-u-ca-islamic', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+                const hijriParts = hijriFormatter.formatToParts(today);
+                const day = parseInt(hijriParts.find(part => part.type === 'day').value);
+                const month = hijriParts.find(part => part.type === 'month').value;
+                const year = hijriParts.find(part => part.type === 'year').value;
+
+                // Get weekday name
+                const weekdayFormatter = new Intl.DateTimeFormat('en', { weekday: 'long' });
+                const weekday = weekdayFormatter.format(today);
+
+                // Format: "21st Jumada Al-Akhirah, 1447h" + "Friday"
+                const dayWithSuffix = getOrdinalSuffix(day);
+                const dateString = `${dayWithSuffix} ${month}, ${year}h`;
+
+                // Display the date (two lines)
+                hijriDate.querySelector('.hijri-day').textContent = dateString;
+                hijriDate.querySelector('.hijri-full').textContent = weekday;
+            } catch (error) {
+                console.error('Error displaying Hijri date:', error);
+                hijriDate.querySelector('.hijri-day').textContent = 'Islamic Calendar';
+                hijriDate.querySelector('.hijri-full').textContent = '';
+            }
+        }
+    }
+
+    // Initialize Hijri date
+    displayHijriDate();
+
     const loginForm = document.getElementById('loginForm');
     const messageDiv = document.getElementById('message');
     const btnLogin = document.querySelector('.btn-login');
