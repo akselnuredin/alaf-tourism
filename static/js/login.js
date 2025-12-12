@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const csrftoken = getCookie('csrftoken');
 
         // AJAX request
-        fetch('/admin/login/', {
+        fetch('/accounts/login/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrftoken,

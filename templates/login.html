@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login Panel</title>
-    <link rel="stylesheet" href="static/css/login.css">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
     <div class="login-container">
@@ -21,7 +22,8 @@
                 <p>Enter your credentials to access your account</p>
             </div>
 
-            <form id="loginForm" class="login-form">
+            <form id="loginForm" class="login-form" method="post">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="username">Username</label>
                     <div class="input-wrapper">
@@ -66,6 +68,6 @@
         </div>
     </div>
 
-    <script src="static/js/login.js"></script>
+    <script src="{% static 'js/login.js' %}"></script>
 </body>
 </html>
