@@ -16,11 +16,20 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.generic import RedirectView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
+    # Redirect admin login/logout to accounts login
+    re_path(r'^admin/login/$', RedirectView.as_view(url='/accounts/login/', permanent=False)),
+    re_path(r'^admin/logout/$', RedirectView.as_view(url='/accounts/logout/', permanent=False)),
     path("admin/", admin.site.urls),
     path("accounts/", include('accounts.urls')),
     path("", RedirectView.as_view(url='/accounts/login/', permanent=False)),
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

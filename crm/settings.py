@@ -36,6 +36,9 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -134,7 +137,90 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+# Media files (Uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Authentication URLs
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/admin/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Unfold Admin Configuration
+UNFOLD = {
+    "SITE_TITLE": "ALAF Tourism CRM",
+    "SITE_HEADER": "ALAF Tourism",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "",  # Remove logo
+    "DASHBOARD_CALLBACK": "crm.dashboard.dashboard_callback",
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Dashboard",
+                "separator": False,
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": "/admin/",
+                    },
+                ],
+            },
+            {
+                "title": "CRM",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Customers",
+                        "icon": "people",
+                        "link": "/admin/accounts/customer/",
+                    },
+                    {
+                        "title": "Tours",
+                        "icon": "tour",
+                        "link": "/admin/accounts/tour/",
+                    },
+                    {
+                        "title": "Bookings",
+                        "icon": "book_online",
+                        "link": "/admin/accounts/booking/",
+                    },
+                ],
+            },
+            {
+                "title": "Settings",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Users",
+                        "icon": "person",
+                        "link": "/admin/auth/user/",
+                    },
+                ],
+            },
+        ],
+    },
+    "TABS": [],
+    "COLORS": {
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255",
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "192 132 252",
+            "500": "212 175 55",  # #D4AF37
+            "600": "147 51 234",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "88 28 135",
+            "950": "59 7 100",
+        },
+    },
+}
