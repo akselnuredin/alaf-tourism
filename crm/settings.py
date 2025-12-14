@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.templatetags.static import static
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "storages",
     "accounts",
 ]
 
@@ -57,6 +60,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# CSRF Settings
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_HTTPONLY = False
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
 
 ROOT_URLCONF = "crm.urls"
 
@@ -137,9 +145,23 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# Media files (Uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# AWS S3 Configuration
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
+AWS_LOCATION = os.getenv('AWS_LOCATION', 'passaports')
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_DEFAULT_ACL = None  # Use bucket's default ACL
+AWS_S3_FILE_OVERWRITE = False
+AWS_QUERYSTRING_AUTH = True  # Generate signed URLs for private files
+
+# Media files (Uploads) - Using S3
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -153,17 +175,24 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Unfold Admin Configuration
 UNFOLD = {
-    "SITE_TITLE": "ALAF Tourism CRM",
-    "SITE_HEADER": "ALAF Tourism",
+    "SITE_TITLE": "Alaf Tourism",
+    "SITE_HEADER": "Tourism Management System",
     "SITE_URL": "/",
-    "SITE_SYMBOL": "",  # Remove logo
+    "SITE_LOGO": {
+        "light": lambda request: static("images/alaflogo.png"),
+        "dark": lambda request: static("images/alaflogo.png"),
+    },
+    "SHOW_HISTORY": False,
+    "SHOW_VIEW_ON_SITE": False,
+    "ENVIRONMENT": None,
     "DASHBOARD_CALLBACK": "crm.dashboard.dashboard_callback",
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": False,
+        "show_user_info": True,
         "navigation": [
             {
-                "title": "Dashboard",
+                "title": "CRM",
                 "separator": False,
                 "items": [
                     {
@@ -171,12 +200,6 @@ UNFOLD = {
                         "icon": "dashboard",
                         "link": "/admin/",
                     },
-                ],
-            },
-            {
-                "title": "CRM",
-                "separator": True,
-                "items": [
                     {
                         "title": "Customers",
                         "icon": "people",
@@ -186,11 +209,6 @@ UNFOLD = {
                         "title": "Tours",
                         "icon": "tour",
                         "link": "/admin/accounts/tour/",
-                    },
-                    {
-                        "title": "Bookings",
-                        "icon": "book_online",
-                        "link": "/admin/accounts/booking/",
                     },
                 ],
             },
@@ -210,17 +228,17 @@ UNFOLD = {
     "TABS": [],
     "COLORS": {
         "primary": {
-            "50": "250 245 255",
-            "100": "243 232 255",
-            "200": "233 213 255",
-            "300": "216 180 254",
-            "400": "192 132 252",
-            "500": "212 175 55",  # #D4AF37
-            "600": "147 51 234",
-            "700": "126 34 206",
-            "800": "107 33 168",
-            "900": "88 28 135",
-            "950": "59 7 100",
+            "50": "250 248 240",
+            "100": "245 239 220",
+            "200": "235 224 180",
+            "300": "228 207 130",
+            "400": "220 191 90",
+            "500": "212 175 55",  # #D4AF37 - Main gold color
+            "600": "190 157 50",
+            "700": "160 132 42",
+            "800": "130 107 34",
+            "900": "100 82 26",
+            "950": "68 86 86",  # #445656 - Dark teal/gray
         },
     },
 }

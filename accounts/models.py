@@ -10,7 +10,6 @@ class UserProfile(models.Model):
     GENDER_CHOICES = [
         ('M', 'Male'),
         ('F', 'Female'),
-        ('O', 'Other'),
     ]
 
     STATUS_CHOICES = [
@@ -51,22 +50,102 @@ class Customer(models.Model):
     GENDER_CHOICES = [
         ('M', 'Male'),
         ('F', 'Female'),
-        ('O', 'Other'),
     ]
 
+    TITLE_CHOICES = [
+        ('MR', 'Mr.'),
+        ('MRS', 'Mrs.'),
+        ('MS', 'Ms.'),
+        ('DR', 'Dr.'),
+    ]
+
+    MARITAL_STATUS_CHOICES = [
+        ('single', 'Single'),
+        ('married', 'Married'),
+        ('divorced', 'Divorced'),
+        ('widowed', 'Widowed'),
+    ]
+
+    EDUCATION_CHOICES = [
+        ('primary', 'Primary School'),
+        ('secondary', 'Secondary School'),
+        ('high_school', 'High School'),
+        ('bachelor', 'Bachelor'),
+        ('master', 'Master'),
+        ('phd', 'PhD'),
+    ]
+
+    # General Information
+    title = models.CharField(max_length=3, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    customer_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    passport_number = models.CharField(max_length=50)
+    identity_number = models.CharField(max_length=50)
+    photo = models.ImageField(upload_to='customer_photos/', blank=True, null=True, verbose_name='Passport Image')
+    birth_date = models.DateField(blank=True, null=True)
+    birth_place = models.CharField(max_length=100, blank=True)
+    mother_name = models.CharField(max_length=100, blank=True)
+    father_name = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20)
+    email = models.EmailField(unique=True)
+    nationality = models.CharField(max_length=100, blank=True)
+    emergency_contact_name = models.CharField(max_length=200, blank=True)
+    emergency_contact_phone = models.CharField(max_length=20, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    age = models.IntegerField(validators=[MinValueValidator(0)], blank=True, null=True)
+
+    # Address Information
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
-    age = models.IntegerField(validators=[MinValueValidator(0)])
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    district = models.CharField(max_length=100, blank=True)
+    street = models.CharField(max_length=200, blank=True)
+    building_no = models.CharField(max_length=20, blank=True)
+    apartment_no = models.CharField(max_length=20, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+    address_description = models.TextField(blank=True)
+
+    # Meta Information
+    is_visitor = models.BooleanField(default=False)
+    is_disabled = models.BooleanField(default=False)
+    is_student = models.BooleanField(default=False)
+    has_chronic_disease = models.BooleanField(default=False)
+    document_type = models.CharField(max_length=100, blank=True)
+    marital_status = models.CharField(max_length=20, choices=MARITAL_STATUS_CHOICES, blank=True)
+    education = models.CharField(max_length=20, choices=EDUCATION_CHOICES, blank=True)
+    occupation = models.CharField(max_length=100, blank=True)
+    passport_type = models.CharField(max_length=50, blank=True)
+    passport_address = models.CharField(max_length=200, blank=True)
+    issuing_authority = models.CharField(max_length=100, blank=True)
+    language = models.CharField(max_length=50, blank=True)
+    passport_issue_date = models.DateField(blank=True, null=True)
+    passport_expiry_date = models.DateField(blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+    def save(self, *args, **kwargs):
+        # Auto-generate customer number if not provided
+        if not self.customer_number:
+            from datetime import datetime
+            now = datetime.now()
+            year = now.year
+            month = now.month
+
+            # Get the count of customers created in the current month
+            month_customers = Customer.objects.filter(
+                created_at__year=year,
+                created_at__month=month
+            ).count()
+
+            # Increment for the new customer
+            sequential_number = month_customers + 1
+
+            self.customer_number = f"cust-{year}-{month:02d}-{sequential_number}"
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-created_at']

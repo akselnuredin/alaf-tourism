@@ -1,0 +1,50 @@
+{% load i18n %}
+
+<div class="relative min-w-sidebar transition-width w-sidebar z-30">
+    <nav id="nav-sidebar" class="bg-base-50 border-r border-base-200 bottom-0 fixed max-h-screen top-0 transition-width w-sidebar dark:bg-base-900 dark:border-base-800">
+        <div class="flex flex-col min-h-screen min-w-sidebar dark:bg-base-950/20">
+            {% include "unfold/helpers/navigation_header.html" %}
+
+            {% include "unfold/helpers/search.html" %}
+
+            {% if sidebar_navigation|length > 0 %}
+                {% include "unfold/helpers/app_list.html" with app_list=available_apps %}
+            {% else %}
+                {% include "admin/app_list.html" with app_list=available_apps show_changelinks=False %}
+            {% endif %}
+
+            <div class="flex-1"></div>
+
+            {# User profile at bottom #}
+            <div class="border-t border-base-200 p-4 dark:border-base-800">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background: #D4AF37;">
+                            {{ request.user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-sm truncate">
+                                {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
+                            </div>
+                            <div class="text-xs text-gray-500 truncate">
+                                {{ request.user.email }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1 flex-shrink-0">
+                        <a href="{% url 'admin:password_change' %}" class="w-8 h-8 flex items-center justify-center rounded hover:bg-base-200 dark:hover:bg-base-800" title="{% trans 'Change password' %}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                        </a>
+                        <a href="{% url 'admin:logout' %}" class="w-8 h-8 flex items-center justify-center rounded hover:bg-base-200 dark:hover:bg-base-800" title="{% trans 'Log out' %}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>

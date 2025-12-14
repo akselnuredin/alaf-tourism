@@ -1,0 +1,114 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Make all form rows perfectly symmetrical */
+    .form-row:not(.errors) {
+        display: grid !important;
+        gap: 1rem;
+        align-items: start;
+    }
+
+    /* Two column rows - perfectly equal */
+    .form-row:has(.field-first_name),
+    .form-row:has(.field-passport_number),
+    .form-row:has(.field-birth_date),
+    .form-row:has(.field-mother_name),
+    .form-row:has(.field-phone),
+    .form-row:has(.field-nationality),
+    .form-row:has(.field-country),
+    .form-row:has(.field-district),
+    .form-row:has(.field-building_no),
+    .form-row:has(.field-document_type),
+    .form-row:has(.field-education),
+    .form-row:has(.field-passport_type),
+    .form-row:has(.field-issuing_authority),
+    .form-row:has(.field-passport_issue_date),
+    .form-row:has(.field-emergency_contact_name),
+    .form-row:has(.field-emergency_contact_phone) {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+
+    /* Single column rows */
+    .form-row:not(:has(.field-first_name)):not(:has(.field-passport_number)):not(:has(.field-birth_date)):not(:has(.field-mother_name)):not(:has(.field-phone)):not(:has(.field-nationality)):not(:has(.field-country)):not(:has(.field-district)):not(:has(.field-building_no)):not(:has(.field-document_type)):not(:has(.field-education)):not(:has(.field-passport_type)):not(:has(.field-issuing_authority)):not(:has(.field-passport_issue_date)):not(:has(.field-emergency_contact_name)):not(:has(.field-emergency_contact_phone)) {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Hide timezone warning */
+    .timezonewarning {
+        display: none !important;
+    }
+
+    /* Enable year typing in flatpickr calendars */
+    .flatpickr-calendar .flatpickr-current-month .cur-year {
+        pointer-events: auto !important;
+        cursor: text !important;
+    }
+
+    /* Hide "Choose a date" placeholder */
+    input[placeholder="Choose a date"]::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove "Choose a date" placeholder from all date inputs
+    document.querySelectorAll('input[type="text"][placeholder="Choose a date"]').forEach(input => {
+        input.placeholder = '';
+    });
+
+    // Configure flatpickr for birth_date
+    const birthDateInput = document.querySelector('#id_birth_date');
+    if (birthDateInput && birthDateInput._flatpickr) {
+        birthDateInput._flatpickr.destroy();
+    }
+    if (birthDateInput) {
+        birthDateInput.placeholder = '';
+        flatpickr(birthDateInput, {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            static: true,
+            monthSelectorType: 'static',
+            plugins: [
+                new window.monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: 'Y-m-d',
+                    altFormat: 'F j, Y'
+                })
+            ]
+        });
+    }
+
+    // Configure flatpickr for passport dates
+    const passportIssueDateInput = document.querySelector('#id_passport_issue_date');
+    if (passportIssueDateInput && passportIssueDateInput._flatpickr) {
+        passportIssueDateInput._flatpickr.destroy();
+    }
+    if (passportIssueDateInput) {
+        passportIssueDateInput.placeholder = '';
+        flatpickr(passportIssueDateInput, {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            static: true
+        });
+    }
+
+    const passportExpiryDateInput = document.querySelector('#id_passport_expiry_date');
+    if (passportExpiryDateInput && passportExpiryDateInput._flatpickr) {
+        passportExpiryDateInput._flatpickr.destroy();
+    }
+    if (passportExpiryDateInput) {
+        passportExpiryDateInput.placeholder = '';
+        flatpickr(passportExpiryDateInput, {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            static: true
+        });
+    }
+});
+</script>
+{% endblock %}
